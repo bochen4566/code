@@ -1,0 +1,60 @@
+---
+title: "274lab06"
+author: "Bochen Wang"
+date: "2022-11-08"
+output: html_document
+---
+
+(a)
+Step 1 Data processing (make the data stationary)
+y.12 <- diff(wine.bc, 12)
+
+Step 2 Model identification
+# Plot it:
+par(mfrow=c(1, 1))
+ts.plot(y.12, main="De-seasonlized Time Series",
+ylab=expression(nabla[12]~Y[t]))
+abline(h=mean(y.12), lty=2)
+
+and use acf and pacf to identify
+par(mfrow=c(1, 2))
+acf(y.12, lag.max=60, main=expression(nabla[12]~Y[t]))
+pacf(y.12, lag.max=60, main=expression(nabla[12]~Y[t])
+
+
+Step 3 Model estimation
+Step 4 Model selection
+choose candidate models then Compute AICc 
+then buillld the final model with fit
+
+Step 5 Model diagnostics
+# Residual plots:
+res <- residuals(fit)
+mean(res); var(res)
+# layout(matrix(c(1, 1, 2, 3), 2, 2, byrow=T))
+
+Step 6 Data forecast
+use predict or use sarima.for() to forcast it.
+
+(b)
+
+```{r}
+dowj_data <- scan("D:/RStudio/dowj.txt")
+dowj <- ts(dowj_data)
+# Plot data
+ts.plot(dowj,main = "Dow Jones Index")
+```
+```{r}
+dowj.diff <- diff(dowj,1)
+ts.plot(dowj.diff, main = "De-trended data")
+
+#check its residuals 
+fit = arima(dowj, order=c(1,1,0), method="ML")
+res <- residuals(fit)
+hist(residuals(fit),main = "Histogram")
+# q-q plot
+qqnorm(residuals(fit))
+qqline(residuals(fit),col ="blue")
+```
+the data seems detrended becasue its innovations follows a WN process and it seems normal
+

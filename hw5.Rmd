@@ -1,0 +1,170 @@
+---
+title: "274hw05"
+author: "Bochen Wang"
+date: "2022-11-01"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+Problem 1
+- define working directory;
+setwd() and getwd()
+
+– read and plot data;
+read.csv() ts.plot()
+
+– simulate and plot ARMA models;
+x1 <- arima.sim(n = 100,model = list(ma=c(theta_1,theta_2))) plot(X1) ### add trend line and mean
+  
+
+– add trend and mean line to the original time series plot;
+abline(lm(data~as.numeric(1:length(data))))
+abline(h=mean(data)) 
+
+ARMA(2,1)
+# Simulate model
+set.seed(4)
+arma21 <- arima.sim(model = list(ar = c(-0.75,-0.5625),ma = 1.25,sd = 1),n = 200)
+# Theoretical ACF
+theo_acf <- ARMAacf(ar = c(-0.75,-0.5625), ma = 1.25,lag.max = 20, pacf = FALSE)
+# Plot
+op <- par(mfrow = c(1,2))
+plot(theo_acf,type = "h",ylim = c(-1,1),
+main = "Theoretical ACF",
+col = "red",
+ylab = expression(rho[X](h)),
+xlab = "h")
+abline(h = 0) # Add horizontal line
+# Sample ACF
+acf(arma21,lag.max = 20,
+main = "Sample ACF",
+ylim = c(-1,1),
+xlab = "h",
+ylab = expression(hat(rho)[X](h)))
+
+– calculate and plot theoretical acf/pacf for ARMA models;
+theo_acf <- ARMAacf(ar = c(-0.75,-0.5625), ma = 1.25,lag.max = 20, pacf = FALSE)
+
+
+– calculate and plot sample acf/pacf;
+acf(x, lag.max = NULL,
+type = c(“correlation”, “covariance”, “partial”),
+plot = TRUE, na.action = na.fail, demean = TRUE, . . . )
+pacf(x, lag.max, plot, na.action, . . . )
+
+acf(arma21,lag.max = 20,
+main = "Sample ACF",
+ylim = c(-1,1),
+xlab = "h",
+ylab = expression(hat(rho)[X](h)))
+
+– check whether a particular model is causal/invertible (R commands to find and plot roots of polynomials)
+polyroot(c()) ## see if they have unit roots
+ 
+– perform Box-Cox transforms;
+#for the dataset wine from lab 4
+library(MASS)
+t = 1:length(wine)
+fit = lm(wine ~ t)
+bcTransform = boxcox(wine ~ t,plotit = TRUE)
+
+– perform differencing data at lags 1 and 12;
+diff(x,lag = 1) diff(x, lag = 12)
+
+– perform Yule-Walker estimation and find standard deviations of the estimates.
+arima(data, order = c(p, 0, q), method = c("yule-walker"))
+
+– perform MLE and check AICC associated with the model.
+x_fit40 = arima(x, order = c(4,0,0), method = "ML")
+library(qpcR)
+AICc(x_fit40) 
+#from lecture
+
+
+Problem 2:
+
+a:
+I choose to analyze the Tesla company's stock prices from 2019 to today.
+b:
+I want to see if the electric car market have a future for entering this field.
+c:
+```{r}
+tesla.csv <- read.csv("TESLA.csv")
+tesla = ts(tesla.csv$Close, start= c(2019,1), frequency = 365)
+plot.ts(tesla)
+#it seems like a linear trend that is going up, in the middle it suddenly grows.
+
+```
+d:
+```{r}
+
+tesla_d <- diff(tesla.csv$Close, 3)
+tesla_ts <- ts(tesla_d)
+plot.ts(tesla_ts)
+```
+e:
+```{r}
+acf(tesla_ts,lag.max = 60,main = "")
+pacf(tesla_ts,lag.max = 60,main = "")
+
+```
+here this data seem more like MA(2) model.
+
+3:
+```{r}
+library(forecast)
+x <- c(3.53,1.33,1.85,0.61,0.98,3.61,3.44,3.38,2.91,2.12,4.62,2.93)
+ts_new <- ts(x, frequency = 4)
+ndiffs(ts_new)
+```
+
+so we can take the values inside for all quarter 1:
+$$
+y_t = 2.637+0.252x_1+0.061x_2-0.202x_3\\
+=2.637+0.252(3.53)+0.061(0.98)-0.202(2.91)\\
+=2.637+0.88956+0.05928-0.58782
+=2.9985
+$$
+so we choose A
+
+Problem 4:
+Becasue it is AR with mean 0
+for $$ρ(2) = 0.215$$ and $$ρ(3) = −0.100$$
+, so $$φ = −p(0.215)$$, also ρ(3) is negative.
+
+$$X_{T+1} = φX_T$$ is -0.4637*-0431=0.19985
+
+Problem 5:
+$$
+AIC_{AR(1)} = -2(-650)+2(1+2)=1306\\
+AIC_{ARMA(1,1)} = -2 (-641)+2(1+1+2)=1290\\
+AIC_{ARMA(1,2)} = -2(-636)+2(1+2+2)= 1282\\
+AIC_{ARMA(2,3)} = -2 (-630)+2(2+3+2)= 1274\\
+AIC_{ARMA(4,3)} = -2*(-629)+2(4+3+2)= 1276
+$$
+by the scores we can see ARMA(2,3) have the lowest thus the best model
+
+GE 1:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+..

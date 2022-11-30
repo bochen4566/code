@@ -1,0 +1,49 @@
+---
+title: "274lab1"
+output: pdf_document
+---
+
+
+
+## 1
+cov(X,Y)=0 by section notes 
+```{r}
+X <- runif(1000, min = -1, max = 1)
+Y <- X^2
+colre <- mean(X*Y)-mean(X)*mean(Y)
+colre
+#the colrelation is near 0 so it is unrelated
+#Y is dependent on X 
+#it might be dependent on X and Y's formation
+```
+## 2
+```{r}
+XTen <- runif(10, min = -1, max = 1)
+mean(XTen)
+XH <- runif(100, min = -1, max = 1)
+mean(XH)
+XT <- runif(1000, min = -1, max = 1)
+mean(XT)
+# it is getting closer to the true mean as the sample size increases
+# the larger the sample size the closer it is to the true mean
+```
+##3
+```{r}
+x <- c(mean(runif(100,-1,1)))
+for (i in 1:999){
+  x <- append(x, mean(runif(100,-1,1)))
+}
+hist(x)
+#it is near 0 from the graph
+```
+##4
+```{r}
+pop <- read.delim("uspop.txt")
+popus <- as.numeric(unlist(pop))
+year <- c(1970:1989)
+plot(popus, year)
+plot(sqrt(popus), year)
+#the first appears to be non linear and the second is linear
+```
+
+

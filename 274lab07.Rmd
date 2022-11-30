@@ -1,0 +1,96 @@
+---
+title: "274lab07"
+author: "Bochen Wang"
+date: "2022-11-08"
+output: pdf_document
+---
+
+```{r}
+library(tsdl)
+milk <- subset(tsdl, 12, "Agriculture")[[3]]
+train <- milk[1:150]
+test <- milk[151:156]
+ts.plot(train, ylab = "Monthly milk production")
+
+```
+```{r}
+dmilk <- diff(train, 12)
+ddmilk <- diff(dmilk, 1)
+
+```
+
+```{r}
+library(astsa)
+fit.i <- sarima(xdata=train, p=0, d=1, q=0, P=1, D=1, Q=1, S=12)
+```
+(a)
+```{r}
+res <- residuals(fit.i$fit)
+mean(res)
+var(res)
+
+par(mfrow=c(1, 1))
+ts.plot(res, main="Fitted Residuals")
+t <- 1:length(res)
+fit.res = lm(res~ t)
+abline(fit.res)
+abline(h = mean(res), col = "red")
+
+par(mfrow=c(1, 2))
+acf(res, main="Autocorrelation")
+pacf(res, main="Partial Autocorrelation")
+```
+from the graph it seems like a normal white noise 
+
+```{r}
+par(mfrow=c(1,2))
+hist(res,main = "Histogram")
+qqnorm(res)
+qqline(res,col ="blue")
+```
+it seems normal with some outliers on the tails
+
+(b)
+```{r}
+library(MASS)
+t <- 1:length(train)
+bcTransform <- boxcox(train ~ t)
+lambda <- bcTransform$x[which.max(bcTransform$y)]
+
+```
+
+```{r}
+par(mfrow=c(1, 1))
+mypred <- predict(fit.i$fit, n.ahead=6)
+ts.plot(train,xlim=c(1, length(train) + 6), ylim=c(min(train)*0.8, max(train)*1.2))
+  #points((length(train) + 1):(length(train) + 6),
+  #       (lambda*mypred$pred + 1)^(1/lambda))
+  U.tr=mypred$pred + 1.96*mypred$se
+  L.tr=mypred$pred - 1.96*mypred$se
+  lines(U.tr, col="blue", lty="dashed")
+  lines(L.tr, col="blue", lty="dashed")
+  points((length(train) + 1):(length(train) + 6), mypred$pred, col="red")
+  #lines((length(train) + 1):(length(train) + 6),
+  #      (lambda*mypred$pred + 1.96*mypred$se + 1)^(1/lambda), lty = 2, col="blue")
+  #lines((length(train) + 1):(length(train) + 6),
+   #     (lambda*mypred$pred - 1.96*mypred$se + 1)^(1/lambda), lty = 2, col = "blue")
+
+```
+
+```{r}
+# Predict 6 future observations and plot
+par(mfrow=c(1, 1))
+sarima.for(train, n.ahead = 6, p=0, d=1, q=0, P=1, D=1, Q=1, S=12)
+#ts.plot(c(milk), xlim=c(1, length(milk) + 6), ylim=c(min(milk)*0.8, max(milk)*1.2))
+#points((length(milk) + 1):(length(milk) + 6), col="red",(lambda*mypred$pred + 1)^(1/lambda))
+#lines((length(wine) + 1):(length(wine) + 6),(lambda*mypred$pred + 1.96*mypred$se + 1)^(1/lambda), lty=2)
+points(151:156, test, col="blue")
+  #points((length(train) + 1):(length(train) + 6),
+  #       (lambda*mypred$pred + 1)^(1/lambda)) 
+  #lines((length(train) + 1):(length(train) + 6),
+  #      (lambda*mypred$pred + 1.96*mypred$se + 1)^(1/lambda), lty = 2)
+  #lines((length(train) + 1):(length(train) + 6),
+  #      (lambda*mypred$pred - 1.96*mypred$se + 1)^(1/lambda), lty = 2)
+
+```
+
